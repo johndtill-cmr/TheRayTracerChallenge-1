@@ -1,3 +1,5 @@
+#[derive(Clone)]
+#[derive(Copy)]
 pub struct Tuple {
     pub x: f32,
     pub y: f32,
@@ -11,6 +13,10 @@ pub fn vector (x: f32, y: f32, z: f32) -> Tuple {
 
 pub fn point (x: f32, y: f32, z: f32) -> Tuple {
     Tuple {x:x, y:y, z:z, w:1.0}
+}
+
+pub fn colour (x: f32, y: f32, z: f32) -> Tuple {
+    Tuple {x:x, y:y, z:z, w:0.0}
 }
 
 use std::ops;
@@ -86,8 +92,11 @@ impl Tuple {
     pub fn is_equal(&self, _rhs: Self) -> bool {
         (self.x == _rhs.x) && (self.y == _rhs.y) && (self.z == _rhs.z) && (self.w == _rhs.w)
     }
+    pub fn norm_squared(&self) -> f32 {
+        self.x*self.x + self.y*self.y + self.z*self.z + self.w*self.w
+    }
     pub fn norm(&self) -> f32 {
-        f32::sqrt(self.x*self.x + self.y*self.y + self.z*self.z + self.w*self.w)
+        f32::sqrt(self.norm_squared())
     }
     pub fn normalised(self) -> Tuple {
         let norm = self.norm();
@@ -102,4 +111,26 @@ impl Tuple {
             self.z*_rhs.x - self.x*_rhs.z,
             self.x*_rhs.y - self.y*_rhs.x)
     }
+    pub fn hadamard_prod(&self, _rhs: &Self) -> Tuple {
+        vector(
+            self.x*_rhs.x,
+            self.y*_rhs.y,
+            self.z*_rhs.z)
+    }
+    pub fn almost_equal(self, _rhs: Self) -> bool {
+        let diff = self - _rhs;
+        diff.norm_squared() < 1e-12
+    }
+
+    pub fn red(&self) -> f32 { self.x }
+    pub fn green(&self) -> f32 { self.y }
+    pub fn blue(&self) -> f32 { self.z }
+
+    pub fn scale255(x: f32) -> u8 {
+        (x*255.0 + 0.5).min(255.0) as u8
+    }
+
+    pub fn red255(&self) -> u8 { Tuple::scale255(self.red()) }
+    pub fn green255(&self) -> u8 { Tuple::scale255(self.green()) }
+    pub fn blue255(&self) -> u8 { Tuple::scale255(self.blue()) }
 }
